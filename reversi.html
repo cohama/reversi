@@ -12,10 +12,10 @@
 <template name="board">
   <h1>Reversi</h1>
   <table id="board">
-  {{#each cells}}
+  {{#each stones}}
     <tr>
     {{#each this}}
-      <td>{{this}}</td>
+      <td>{{this.text}}</td>
     {{/each}}
     </tr>
   {{/each}}
