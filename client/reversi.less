@@ -1,15 +1,40 @@
 #container {
-  width: 100%;
-}
+  @full-width: 280px;
+  width: @full-width;
 
-table {
-  border-collapse: collapse;
-
-  td {
-    border: 1px solid black;
-    width: 30px;
-    height: 30px;
+  #lobby {
     text-align: center;
+
+    h3 {
+      margin: 0 4px;
+    }
+    input[type=text] {
+      width: @full-width * 0.4;
+      margin-right: @full-width * 0.05;
+    }
+    button {
+      width: @full-width * 0.4;
+    }
+
+    button#enter-room {
+      display: none;
+    }
+
   }
+
+  table#board {
+    width: @full-width;
+    height: @full-width;
+    border-collapse: collapse;
+
+    td {
+      border: 1px solid black;
+      width: @full-width/8;
+      height: @full-width/8;
+      text-align: center;
+    }
+  }
+
 }
+
 

@@ -5,12 +5,32 @@
 
 <body>
   <div id="container">
+    <h1>Reversi</h1>
+    {{> lobby}}
     {{> board}}
   </div>
 </body>
 
+<template name="lobby">
+  <div id="lobby">
+    <h3>{{instruction}}</h3>
+    <h3>{{{information}}</h3>
+    {{#if new_game}}
+    <div id="room">
+      <input id="room-name" type="text" />
+      <button id="create-room" disabled>create room</button>
+      <button id="enter-room" disabled>enter room</button>
+    </div>
+    {{else}}
+    <div id="player">
+      <input id="player-name" type="text" />
+      <button id="entry">entry</button>
+    </div>
+    {{/if}}
+  </div>
+</template>
+
 <template name="board">
-  <h1>Reversi</h1>
   <table id="board">
   {{#each stones}}
     <tr>
