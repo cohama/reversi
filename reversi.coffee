@@ -17,6 +17,12 @@ if Meteor.is_client
       .toArray()
       .value()
 
+  Template.board.events =
+    'click td': (e) ->
+      i = $(e.target).attr('i') - 0
+      j = $(e.target).attr('j') - 0
+      Stones.update({i: i, j: j}, _.extend({i: i, j: j}, WhiteStone))
+
 if Meteor.is_server
   Meteor.startup ->
     if Stones.find().count() == 0
