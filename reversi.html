@@ -14,14 +14,15 @@
 <template name="lobby">
   <div id="lobby">
     <h3>{{instruction}}</h3>
-    <h3>{{{information}}</h3>
+    {{{information}}
     {{#if new_game}}
     <div id="room">
       <input id="room-name" type="text" />
       <button id="create-room" disabled>create room</button>
       <button id="enter-room" disabled>enter room</button>
     </div>
-    {{else}}
+    {{/if}}
+    {{#if new_player}}
     <div id="player">
       <input id="player-name" type="text" />
       <button id="entry">entry</button>

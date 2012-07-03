@@ -12,7 +12,6 @@ BlackStone =
 
 if Meteor.is_client
   Meteor.startup ->
-    console.log "startup"
     Session.set("room_id", undefined)
 
   Template.lobby.events =
@@ -31,6 +30,14 @@ if Meteor.is_client
           $create_button.hide()
           $enter_button.show()
 
+    'keyup, change #player-name': () ->
+      player_name = $(":text#player-name").val()
+      $entry_button = $("button#entry")
+      if player_name == ""
+        $("#player button").attr("disabled", "disabled")
+      else
+        $("#player button").removeAttr("disabled")
+
     'click #create-room': ->
       room_name = $(":text#room-name").val()
       room_id = Rooms.insert(name: room_name)
@@ -40,9 +47,26 @@ if Meteor.is_client
       room_name = $(":text#room-name").val()
       Session.set("room_id", Rooms.findOne(name: room_name)._id)
 
+    'click #entry': () ->
+      room_id = Session.get("room_id")
+      player_name = $(":text#player-name").val()
+      Rooms.update({_id: room_id}, $push: {player: player_name})
+      Session.set("player_name", player_name)
+
+
   Template.lobby.information = ->
     room = Rooms.findOne(_id: Session.get("room_id"))
-    "Room: #{room.name}" if room
+    ret = ""
+    ret += "<h3>Room: #{room.name}</h3>" if room
+    if room?.player
+      if room.player.length == 1
+        if Session.get("player_name")
+          ret += "<h3>Waiting for the adversary</h3>"
+        else
+          ret += "<h3>The adversary's name is #{room.player[0]}</h3>"
+      else
+        ret += "<h3>#{room.player[0]} vs #{room.player[1]}</h3>"
+    ret
 
   Template.lobby.instruction = ->
     room = Rooms.findOne(_id: Session.get("room_id"))
@@ -53,6 +77,9 @@ if Meteor.is_client
 
   Template.lobby.new_game = ->
     Session.get("room_id") == undefined
+
+  Template.lobby.new_player = ->
+    Session.get("room_id") && Session.get("player_name") == undefined
 
   Template.board.stones = ->
     _(Stones.find().fetch())
