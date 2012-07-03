@@ -83,7 +83,10 @@ if Meteor.is_client
   Template.lobby.instruction = ->
     room = Rooms.findOne(_id: Session.get("room_id"))
     if room
-      "Input your name!"
+      if Session.get("player_name")
+        ""
+      else
+        "Input your name!"
     else
       "Input the room name!"
 
