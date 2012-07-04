@@ -1,3 +1,4 @@
+Stones = new Meteor.Collection("stones")
 Rooms = new Meteor.Collection("rooms")
 
 BlankStone =
@@ -13,6 +14,7 @@ if Meteor.is_client
   Meteor.startup ->
     Session.set("room_id", undefined)
     Session.set("player_name", undefined)
+    Session.set("game_ready", undefined)
 
   Template.lobby.events =
     'keyup, change #room-name': (e) ->
@@ -40,7 +42,7 @@ if Meteor.is_client
 
     'click #create-room': ->
       room_name = $(":text#room-name").val()
-      stones = []
+      room_id = Rooms.insert(name: room_name)
       for j in [1..8]
         for i in [1..8]
           stone = null
@@ -50,9 +52,8 @@ if Meteor.is_client
             stone = BlackStone
           else
             stone = BlankStone
-          initStone = _.extend({i: i, j: j}, stone)
-          stones.push initStone
-      room_id = Rooms.insert(name: room_name, stones: stones)
+          initStone = _.extend({room_id: room_id, i: i, j: j}, stone)
+          Stones.insert initStone
       Session.set("room_id", room_id)
 
     'click #enter-room': () ->
@@ -78,6 +79,7 @@ if Meteor.is_client
           ret += "<h3>The adversary's name is #{room.player[0]}</h3>"
       else
         ret += "<h3>#{room.player[0]} vs #{room.player[1]}</h3>"
+        Session.set("game_ready", true)
     ret
 
   Template.lobby.instruction = ->
@@ -97,13 +99,14 @@ if Meteor.is_client
     Session.get("room_id") && Session.get("player_name") == undefined
 
   Template.board.stones = ->
-    room = Rooms.findOne(_id: Session.get("room_id"))
-    grids = _(room?.stones)
-            .chain()
-            .groupBy("j")
-            .toArray()
-            .value()
-    grids if room?.player?.length == 2
+    return unless Session.equals("game_ready", true)
+    room_id = Session.get("room_id")
+    stones = Stones.find(room_id: room_id).fetch()
+    _(stones)
+      .chain()
+      .groupBy("j")
+      .toArray()
+      .value()
 
   Template.board.events =
     'click td': (e) ->
