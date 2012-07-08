@@ -48,7 +48,7 @@ if Meteor.is_client
 
     'click #create-room': ->
       room_name = $(":text#room-name").val()
-      room_id = Rooms.insert(name: room_name)
+      room_id = Rooms.insert(name: room_name, turn: 0)
       for j in [1..8]
         for i in [1..8]
           stone = null
@@ -120,6 +120,12 @@ if Meteor.is_client
       i = $(e.target).attr('i') - 0
       j = $(e.target).attr('j') - 0
       Stones.update({room_id: roomId(), i: i, j: j}, _.extend({room_id: roomId(), i: i, j: j}, myStone()))
+      Rooms.update({_id: roomId()}, {$inc: {turn: 1}})
+
+  Template.board.gameInformation = ->
+    return unless gameReady()
+    room = Rooms.findOne(_id: roomId())
+    room?.player[room.turn%2] + "'s turn."
 
 if Meteor.is_server
   Meteor.startup ->
