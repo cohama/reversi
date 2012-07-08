@@ -13,12 +13,14 @@ BlackStone =
 roomId = -> Session.get("room_id")
 playerName = -> Session.get("player_name")
 gameReady = -> Session.get("game_ready")
+myStone = -> Session.get("my_stone")
 
 if Meteor.is_client
   Meteor.startup ->
     Session.set("room_id", undefined)
     Session.set("player_name", undefined)
     Session.set("game_ready", undefined)
+    Session.set("my_stone", undefined)
 
   Template.lobby.events =
     'keyup, change #room-name': (e) ->
@@ -68,6 +70,11 @@ if Meteor.is_client
       player_name = $(":text#player-name").val()
       Rooms.update({_id: roomId()}, $push: {player: player_name})
       Session.set("player_name", player_name)
+      room = Rooms.findOne(_id: roomId())
+      if (room.player.length == 1)
+        Session.set("my_stone", WhiteStone)
+      else
+        Session.set("my_stone", BlackStone)
 
 
   Template.lobby.information = ->
@@ -112,7 +119,7 @@ if Meteor.is_client
     'click td': (e) ->
       i = $(e.target).attr('i') - 0
       j = $(e.target).attr('j') - 0
-      Stones.update({i: i, j: j}, _.extend({i: i, j: j}, WhiteStone))
+      Stones.update({room_id: roomId(), i: i, j: j}, _.extend({room_id: roomId(), i: i, j: j}, myStone()))
 
 if Meteor.is_server
   Meteor.startup ->
