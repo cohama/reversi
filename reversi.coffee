@@ -10,6 +10,10 @@ WhiteStone =
 BlackStone =
   text: "●"
 
+roomId = -> Session.get("room_id")
+playerName = -> Session.get("player_name")
+gameReady = -> Session.get("game_ready")
+
 if Meteor.is_client
   Meteor.startup ->
     Session.set("room_id", undefined)
@@ -61,9 +65,8 @@ if Meteor.is_client
       Session.set("room_id", Rooms.findOne(name: room_name)._id)
 
     'click #entry': () ->
-      room_id = Session.get("room_id")
       player_name = $(":text#player-name").val()
-      Rooms.update({_id: room_id}, $push: {player: player_name})
+      Rooms.update({_id: roomId()}, $push: {player: player_name})
       Session.set("player_name", player_name)
 
 
@@ -83,25 +86,22 @@ if Meteor.is_client
     ret
 
   Template.lobby.instruction = ->
-    room = Rooms.findOne(_id: Session.get("room_id"))
+    room = Rooms.findOne(_id: roomId())
     if room
-      if Session.get("player_name")
+      if playerName()
         ""
       else
         "Input your name!"
     else
       "Input the room name!"
 
-  Template.lobby.new_game = ->
-    Session.get("room_id") == undefined
+  Template.lobby.new_game = -> !roomId()
 
-  Template.lobby.new_player = ->
-    Session.get("room_id") && Session.get("player_name") == undefined
+  Template.lobby.new_player = -> roomId() && !playerName()
 
   Template.board.stones = ->
-    return unless Session.equals("game_ready", true)
-    room_id = Session.get("room_id")
-    stones = Stones.find(room_id: room_id).fetch()
+    return unless gameReady()
+    stones = Stones.find(room_id: roomId()).fetch()
     _(stones)
       .chain()
       .groupBy("j")
