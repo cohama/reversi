@@ -117,10 +117,12 @@ if Meteor.is_client
 
   Template.board.events =
     'click td': (e) ->
-      i = $(e.target).attr('i') - 0
-      j = $(e.target).attr('j') - 0
-      Stones.update({room_id: roomId(), i: i, j: j}, _.extend({room_id: roomId(), i: i, j: j}, myStone()))
-      Rooms.update({_id: roomId()}, {$inc: {turn: 1}})
+      room = Rooms.findOne(_id: roomId())
+      if room?.player[room.turn%2] == playerName()
+        i = $(e.target).attr('i') - 0
+        j = $(e.target).attr('j') - 0
+        Stones.update({room_id: roomId(), i: i, j: j}, _.extend({room_id: roomId(), i: i, j: j}, myStone()))
+        Rooms.update({_id: roomId()}, {$inc: {turn: 1}})
 
   Template.board.gameInformation = ->
     return unless gameReady()
